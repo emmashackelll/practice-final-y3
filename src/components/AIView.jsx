@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, ScrollView, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Keyboard, Platform } from 'react-native';
 import { handleInput } from '../Order';
-import ChatView from './ChatView'
+import ChatView from './ChatView';
 import WelcomeView from './WelcomeView';
 
-export default function(){
+export default function () {
   const [messages, setMessages] = useState([]);
   const [inputBarText, setInputBarText] = useState('');
   const scrollViewRef = useRef(null);
 
-  // Scroll to bottom helper
   const scrollToBottom = (animated = true) => {
-    // Small timeout ensures the layout has calculated before scrolling
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({ animated });
     }, 100);
   };
 
   useEffect(() => {
-    // Setup keyboard listeners
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => scrollToBottom());
     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => scrollToBottom());
 
-    // Initial scroll
     scrollToBottom(false);
 
     return () => {
@@ -31,7 +27,6 @@ export default function(){
     };
   }, []);
 
-  // Scroll whenever messages update
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -39,52 +34,62 @@ export default function(){
   const sendMessage = () => {
     if (inputBarText.trim().length === 0) return;
 
-    // Correct way to update state: create a NEW array
-    let newMessages = [{ direction: 'right', text: inputBarText }];
-    const aResponse = handleInput(inputBarText);
-    for(const message of aResponse){
-      newMessages.push({direction: "left", text: message});
-    }
-    setMessages([...messages, ...newMessages]);
+    const userMessage = { direction: 'right', text: inputBarText };
+    const botResponses = handleInput(inputBarText);
+
+    const newMessages = [
+      userMessage,
+      ...botResponses.map((message) => ({ direction: 'left', text: message }))
+    ];
+
+    setMessages((prev) => [...prev, ...newMessages]);
+    setInputBarText('');
+  };
+
+  const sendPromptMessage = (promptText) => {
+    const userMessage = { direction: 'right', text: promptText };
+    const botResponses = handleInput(promptText);
+
+    const newMessages = [
+      userMessage,
+      ...botResponses.map((message) => ({ direction: 'left', text: message }))
+    ];
+
+    setMessages((prev) => [...prev, ...newMessages]);
     setInputBarText('');
   };
 
   return (
     <View style={styles.outer}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        {messages.length?(
-        <ChatView scrollToBottom={scrollToBottom} 
-        sendMessage={sendMessage} 
-        scrollViewRef={scrollViewRef} 
-        styles={styles} 
-        messages={messages} 
-        setInputBarText={setInputBarText}
-        inputBarText={inputBarText}  />
-
-        ):(
-          <WelcomeView 
-          scrollToBottom={scrollToBottom} 
-        sendMessage={sendMessage} 
-        scrollViewRef={scrollViewRef} 
-        styles={styles} 
-        messages={messages} 
-        setInputBarText={setInputBarText}
-        inputBarText={inputBarText}  />
-
+        {messages.length ? (
+          <ChatView
+            scrollToBottom={scrollToBottom}
+            sendMessage={sendMessage}
+            scrollViewRef={scrollViewRef}
+            styles={styles}
+            messages={messages}
+            setInputBarText={setInputBarText}
+            inputBarText={inputBarText}
+          />
+        ) : (
+          <WelcomeView
+            scrollToBottom={scrollToBottom}
+            sendMessage={sendMessage}
+            setInputBarText={setInputBarText}
+            inputBarText={inputBarText}
+            onPromptPress={sendPromptMessage}
+          />
         )}
       </KeyboardAvoidingView>
     </View>
   );
-};
+}
 
-//TODO: separate these out. This is what happens when you're in a hurry!
 const styles = StyleSheet.create({
-
-  //ChatView
-
   outer: {
     flex: 1,
     flexDirection: 'column',
@@ -94,6 +99,5 @@ const styles = StyleSheet.create({
 
   messages: {
     flex: 1
-  },
-
-})
+  }
+});
