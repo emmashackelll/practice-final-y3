@@ -1,21 +1,14 @@
-import { handleInput, clearInput } from '../src/Order.js';
-
-describe("Tests all stages of an order", function () {
+describe("Emma's Cafe chatbot", function () {
     beforeEach(function () {
         clearInput();
     });
-    it("test hello", function () {
+    it("welcome test", function () {
         const aResults = handleInput("hello");
-        expect(aResults[0]).toBe("Welcome to Rich's Acton Rapid Test.");
+        expect(aResults[0]).toBe("Welcome to Emma's Cafe.");
     });
-    it("test yes", function () {
+    it("menu test", function () {
         handleInput("hello");
-        const aResults = handleInput("yes");
-        expect(aResults[0]).toBe("Your rapid test is reserved");
-    });
-    it("test no", function () {
-        handleInput("hello");
-        const aResults = handleInput("no");
-        expect(aResults[0]).toBe("Thanks for trying our reservation system");
+        const results = handleInput("menu");
+        expect(results[0]).toBe("Our Drinks:");
     });
 });
