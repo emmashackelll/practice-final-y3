@@ -1,22 +1,21 @@
 let currentState = welcoming;
-let order = {};
-let lastCompletedOrder = null;
+let appointment = {};
+let lastCompletedAppointment = null;
 
 export function handleInput(sInput) {
   const input = sInput.trim();
   const lowerInput = input.toLowerCase();
 
-  // Global AI-like prompt commands
-  if (lowerInput === "repeat last order") {
-    return repeatLastOrder();
+  if (lowerInput === "repeat last appointment") {
+    return repeatLastAppointment();
   }
 
-  if (lowerInput === "show menu") {
-    return showMenu();
+  if (lowerInput === "show services" || lowerInput === "show menu") {
+    return showServices();
   }
 
-  if (lowerInput === "surprise me") {
-    return surpriseMe();
+  if (lowerInput === "suggest a style" || lowerInput === "surprise me") {
+    return suggestStyle();
   }
 
   return currentState(input);
@@ -24,33 +23,31 @@ export function handleInput(sInput) {
 
 export function clearInput() {
   currentState = welcoming;
-  order = {};
+  appointment = {};
 }
 
 function welcoming() {
   let aReturn = [];
   currentState = mainMenu;
-  aReturn.push("Welcome to Emma's Cafe.");
-  aReturn.push("Please type NEXT to continue.");
+  aReturn.push("Welcome to Emma's Hair Salon.");
+  aReturn.push("We can help you book a salon appointment.");
+  aReturn.push("Type NEXT to continue.");
   return aReturn;
 }
 
 function mainMenu(sInput) {
   let aReturn = [];
+  const lowerInput = sInput.toLowerCase();
 
-  if (
-    sInput.toLowerCase() === "hello" ||
-    sInput.toLowerCase() === "hi" ||
-    sInput.toLowerCase() === "hey"
-  ) {
+  if (lowerInput === "hello" || lowerInput === "hi" || lowerInput === "hey") {
     return welcoming();
   }
 
-  if (sInput.toLowerCase() === "next" || sInput.toLowerCase() === "menu") {
-    currentState = drinkChoice;
-    aReturn.push("Our Drinks:");
-    aReturn.push("1. Coffee");
-    aReturn.push("2. Iced Coffee");
+  if (lowerInput === "next" || lowerInput === "menu") {
+    currentState = serviceChoice;
+    aReturn.push("Our Services:");
+    aReturn.push("1. Haircut");
+    aReturn.push("2. Blowout");
     aReturn.push("Reply with 1 or 2.");
   } else {
     aReturn.push("Please type NEXT to continue.");
@@ -59,69 +56,66 @@ function mainMenu(sInput) {
   return aReturn;
 }
 
-function drinkChoice(sInput) {
+function serviceChoice(sInput) {
   let aReturn = [];
 
   if (sInput === "1") {
-    order.drink = "Coffee";
+    appointment.service = "Haircut";
   } else if (sInput === "2") {
-    order.drink = "Iced Coffee";
+    appointment.service = "Blowout";
   } else {
     aReturn.push("Please choose 1 or 2.");
     return aReturn;
   }
 
-  currentState = sizeChoice;
-  aReturn.push("What size would you like?");
-  aReturn.push("Options: Small, Medium, or Large.");
+  currentState = stylistChoice;
+  aReturn.push("Which stylist would you like?");
+  aReturn.push("Options: Emma, Sophia, or Ava.");
   return aReturn;
 }
 
-function sizeChoice(sInput) {
+function stylistChoice(sInput) {
   let aReturn = [];
   const lowerInput = sInput.toLowerCase();
 
   if (
-    lowerInput !== "small" &&
-    lowerInput !== "medium" &&
-    lowerInput !== "large"
+    lowerInput !== "emma" &&
+    lowerInput !== "sophia" &&
+    lowerInput !== "ava"
   ) {
-    aReturn.push("Please choose Small, Medium, or Large.");
+    aReturn.push("Please choose Emma, Sophia, or Ava.");
     return aReturn;
   }
 
-  order.size = sInput;
-  currentState = alterationChoice;
-
-  aReturn.push("Any alterations?");
-  aReturn.push("Options: Oat milk, Almond milk, Add Vanilla, Add Caramel.");
+  appointment.stylist = sInput;
+  currentState = addOnChoice;
+  aReturn.push("Would you like to add a service?");
+  aReturn.push("Options: Wash, Deep Conditioning, Scalp Massage, or None.");
   aReturn.push("Reply with your choice or type NONE.");
   return aReturn;
 }
 
-function alterationChoice(sInput) {
+function addOnChoice(sInput) {
   let aReturn = [];
   const lowerInput = sInput.toLowerCase();
 
   const validOptions = [
-    "oat milk",
-    "almond milk",
-    "add vanilla",
-    "add caramel",
+    "wash",
+    "deep conditioning",
+    "scalp massage",
     "none"
   ];
 
   if (!validOptions.includes(lowerInput)) {
-    aReturn.push("Please choose from the options or type NONE.");
+    aReturn.push("Please choose one of the add-on options or type NONE.");
     return aReturn;
   }
 
-  order.alteration = sInput;
+  appointment.addOn = sInput;
   currentState = upsell;
-
-  aReturn.push("Would you like to add a pastry to your order?");
-  aReturn.push("1. Croissant");
-  aReturn.push("2. Muffin");
+  aReturn.push("Would you like to add a retail product today?");
+  aReturn.push("1. Shampoo");
+  aReturn.push("2. Conditioner");
   aReturn.push("Type NO if not.");
   return aReturn;
 }
@@ -131,82 +125,83 @@ function upsell(sInput) {
   const lowerInput = sInput.toLowerCase();
 
   if (sInput === "1") {
-    order.pastry = "Croissant";
+    appointment.product = "Shampoo";
   } else if (sInput === "2") {
-    order.pastry = "Muffin";
+    appointment.product = "Conditioner";
   } else if (lowerInput === "no") {
-    order.pastry = "None";
+    appointment.product = "None";
   } else {
     aReturn.push("Please reply with 1, 2, or NO.");
     return aReturn;
   }
 
-  lastCompletedOrder = { ...order };
+  lastCompletedAppointment = { ...appointment };
   currentState = mainMenu;
 
-  aReturn.push("Thanks. Your order will be ready for pickup in 10 minutes.");
-  aReturn.push(`${order.size} ${order.drink}`);
-  aReturn.push(`Alterations: ${order.alteration}`);
-  aReturn.push(`Pastry: ${order.pastry}`);
-  aReturn.push("Reply NEXT to start a new order.");
+  aReturn.push("Thanks. Your appointment has been booked.");
+  aReturn.push(`Service: ${appointment.service}`);
+  aReturn.push(`Stylist: ${appointment.stylist}`);
+  aReturn.push(`Add-on: ${appointment.addOn}`);
+  aReturn.push(`Retail Product: ${appointment.product}`);
+  aReturn.push("Reply NEXT to start a new booking.");
 
   return aReturn;
 }
 
-function repeatLastOrder() {
+function repeatLastAppointment() {
   let aReturn = [];
 
-  if (!lastCompletedOrder) {
-    aReturn.push("I do not have a previous order saved yet.");
-    aReturn.push("Start an order first, then I can repeat it for you.");
+  if (!lastCompletedAppointment) {
+    aReturn.push("I do not have a previous appointment saved yet.");
+    aReturn.push("Book an appointment first, then I can repeat it for you.");
     return aReturn;
   }
 
-  order = { ...lastCompletedOrder };
+  appointment = { ...lastCompletedAppointment };
   currentState = mainMenu;
 
-  aReturn.push("Sure. I repeated your last order.");
-  aReturn.push(`${order.size} ${order.drink}`);
-  aReturn.push(`Alterations: ${order.alteration}`);
-  aReturn.push(`Pastry: ${order.pastry}`);
-  aReturn.push("Your usual order is ready for pickup in 10 minutes.");
-  aReturn.push("Reply NEXT to start a new order.");
+  aReturn.push("Sure. I repeated your last appointment.");
+  aReturn.push(`Service: ${appointment.service}`);
+  aReturn.push(`Stylist: ${appointment.stylist}`);
+  aReturn.push(`Add-on: ${appointment.addOn}`);
+  aReturn.push(`Retail Product: ${appointment.product}`);
+  aReturn.push("Reply NEXT to start a new booking.");
 
   return aReturn;
 }
 
-function showMenu() {
+function showServices() {
   let aReturn = [];
-  currentState = drinkChoice;
+  currentState = serviceChoice;
 
-  aReturn.push("Here is the menu.");
-  aReturn.push("Our Drinks:");
-  aReturn.push("1. Coffee");
-  aReturn.push("2. Iced Coffee");
+  aReturn.push("Here are our services.");
+  aReturn.push("Our Services:");
+  aReturn.push("1. Haircut");
+  aReturn.push("2. Blowout");
   aReturn.push("Reply with 1 or 2.");
 
   return aReturn;
 }
 
-function surpriseMe() {
+function suggestStyle() {
   let aReturn = [];
 
-  order = {
-    drink: "Coffee",
-    size: "Medium",
-    alteration: "Add Vanilla",
-    pastry: "Croissant"
+  appointment = {
+    service: "Haircut",
+    stylist: "Emma",
+    addOn: "Deep Conditioning",
+    product: "Shampoo"
   };
 
-  lastCompletedOrder = { ...order };
+  lastCompletedAppointment = { ...appointment };
   currentState = mainMenu;
 
-  aReturn.push("I picked a popular combo for you.");
-  aReturn.push("Medium Coffee");
-  aReturn.push("Alterations: Add Vanilla");
-  aReturn.push("Pastry: Croissant");
-  aReturn.push("It will be ready for pickup in 10 minutes.");
-  aReturn.push("Reply NEXT to start a new order.");
+  aReturn.push("I picked a popular salon package for you.");
+  aReturn.push("Service: Haircut");
+  aReturn.push("Stylist: Emma");
+  aReturn.push("Add-on: Deep Conditioning");
+  aReturn.push("Retail Product: Shampoo");
+  aReturn.push("Reply NEXT to start a new booking.");
 
   return aReturn;
 }

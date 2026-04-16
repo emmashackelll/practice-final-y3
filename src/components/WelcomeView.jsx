@@ -11,32 +11,34 @@ export default function ({
 }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Emma’s Cafe Assistant</Text>
-      <Text style={styles.subtitle}>
-        Ask for a menu, repeat a past order, or let the assistant choose for you.
-      </Text>
+      <View>
+        <Text style={styles.title}>Emma&apos;s Hair Salon Assistant</Text>
+        <Text style={styles.subtitle}>
+          Book a service, repeat a past appointment, or let the assistant suggest a style for you.
+        </Text>
 
-      <View style={styles.promptContainer}>
-        <TouchableOpacity
-          style={styles.promptButton}
-          onPress={() => onPromptPress('repeat last order')}
-        >
-          <Text style={styles.promptText}>Repeat last order</Text>
-        </TouchableOpacity>
+        <View style={styles.promptContainer}>
+          <TouchableOpacity
+            style={styles.promptButton}
+            onPress={() => onPromptPress('repeat last appointment')}
+          >
+            <Text style={styles.promptText}>Repeat last appointment</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.promptButton}
-          onPress={() => onPromptPress('show menu')}
-        >
-          <Text style={styles.promptText}>Show menu</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.promptButton}
+            onPress={() => onPromptPress('show services')}
+          >
+            <Text style={styles.promptText}>Show services</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.promptButton}
-          onPress={() => onPromptPress('surprise me')}
-        >
-          <Text style={styles.promptText}>Surprise me</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.promptButton}
+            onPress={() => onPromptPress('suggest a style')}
+          >
+            <Text style={styles.promptText}>Suggest a style</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <InputBar
